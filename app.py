@@ -17,12 +17,16 @@ if not os.path.exists("credentials.json"):
 
 # Definir variável de ambiente para autenticação
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.abspath("credentials.json")
-
 try:
-    ee.Initialize()
+    credentials = ee.ServiceAccountCredentials(
+        st.secrets["google_service_account"]["client_email"],
+        os.path.abspath("credentials.json")
+    )
+    ee.Initialize(credentials)
 except Exception as e:
     st.error(f"Erro ao inicializar Earth Engine: {e}")
     st.stop()
+
 
 if 'drawings' not in st.session_state:
     st.session_state.drawings = []
