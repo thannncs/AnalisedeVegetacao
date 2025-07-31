@@ -7,15 +7,15 @@ from geopy.geocoders import Nominatim
 import os
 import ee
 import json
-
 try:
     service_account_info = json.loads(st.secrets["google_service_account"]["json"])
-    credentials = ee.ServiceAccountCredentials.from_json_keyfile_dict(service_account_info)
+    credentials = ee.ServiceAccountCredentials(
+        service_account_info["client_email"], key_data=service_account_info
+    )
     ee.Initialize(credentials)
 except Exception as e:
     st.error(f"Erro ao inicializar Earth Engine: {e}")
     st.stop()
-
 
 
 
