@@ -8,14 +8,24 @@ import os
 import ee
 import json
 
+try:
+    raw_key = st.secrets["google_service_account"]["json"]
+    
+    # Garante que seja um dicionário (caso já tenha sido convertido pelo Streamlit)
+    if isinstance(raw_key, str):
+        service_account_info = json.loads(raw_key)
+    else:
+        service_account_info = raw_key
 
-service_account_info = json.loads(st.secrets["google_service_account"]["json"])
+    credentials = ee.ServiceAccountCredentials(
+        service_account_info["client_email"],
+        key_data=service_account_info
+    )
+    ee.Initialize(credentials)
+except Exception as e:
+    st.error(f"Erro ao inicializar Earth Engine: {e}")
+    st.stop()
 
-credentials = ee.ServiceAccountCredentials(
-    service_account_info["client_email"], key_data=service_account_info
-)
-
-ee.Initialize(credentials)
 
 
 
