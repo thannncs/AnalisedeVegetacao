@@ -8,10 +8,14 @@ from geopy.geocoders import Nominatim
 import json
 import os
 
+# Criar arquivo credentials.json a partir do secrets (string JSON convertida em dict)
 if not os.path.exists("credentials.json"):
+    service_account_str = st.secrets["google_service_account"]["json"]  # pega a string JSON
+    service_account_dict = json.loads(service_account_str)  # converte para dict
     with open("credentials.json", "w") as f:
-        json.dump(st.secrets["google_service_account"], f)
+        json.dump(service_account_dict, f)
 
+# Definir variável de ambiente para autenticação
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.abspath("credentials.json")
 
 try:
