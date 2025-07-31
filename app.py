@@ -1,31 +1,28 @@
 import streamlit as st
-import ee
 import folium
 from streamlit_folium import st_folium
 import pandas as pd
 from folium.plugins import Draw
 from geopy.geocoders import Nominatim
-import json
 import os
+import ee
+import json
 
-# Criar arquivo credentials.json a partir do secrets (string JSON convertida em dict)
 if not os.path.exists("credentials.json"):
-    service_account_str = st.secrets["google_service_account"]["json"]  # pega a string JSON
-    service_account_dict = json.loads(service_account_str)  # converte para dict
     with open("credentials.json", "w") as f:
-        json.dump(service_account_dict, f)
+        json.dump(st.secrets["google_service_account"], f)
 
-# Definir variável de ambiente para autenticação
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.abspath("credentials.json")
+credentials = ee.ServiceAccountCredentials(
+    st.secrets["google_service_account"]["client_email"],
+    os.path.abspath("credentials.json")
+)
+
 try:
-    credentials = ee.ServiceAccountCredentials(
-        st.secrets["google_service_account"]["client_email"],
-        os.path.abspath("credentials.json")
-    )
     ee.Initialize(credentials)
 except Exception as e:
     st.error(f"Erro ao inicializar Earth Engine: {e}")
     st.stop()
+
 
 
 if 'drawings' not in st.session_state:
