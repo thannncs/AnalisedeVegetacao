@@ -7,7 +7,6 @@ import pandas as pd
 from folium.plugins import Draw
 from geopy.geocoders import Nominatim
 
-# Função segura para autenticar com Earth Engine
 def inicializar_ee():
     try:
         if "earthengine" in st.secrets:
@@ -18,7 +17,7 @@ def inicializar_ee():
             )
             ee.Initialize(credentials)
         else:
-            # Para uso local (arquivo não será versionado)
+            
             credentials = ee.ServiceAccountCredentials(
                 'sua-conta@estagio-461414.iam.gserviceaccount.com',
                 'credentials.json'
@@ -44,7 +43,7 @@ if st.sidebar.button("Limpar desenhos"):
     st.session_state.drawings = []
     st.experimental_rerun()
 
-lat, lon = -14.2, -51.9  # Centro padrão Brasil
+lat, lon = -14.2, -51.9  # Brasil
 
 if query:
     geolocator = Nominatim(user_agent="my_streamlit_app")
