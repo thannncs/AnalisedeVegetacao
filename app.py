@@ -8,20 +8,14 @@ import os
 import ee
 import json
 
-if not os.path.exists("credentials.json"):
-    with open("credentials.json", "w") as f:
-        json.dump(st.secrets["google_service_account"], f)
-
-credentials = ee.ServiceAccountCredentials(
-    st.secrets["google_service_account"]["client_email"],
-    os.path.abspath("credentials.json")
-)
-
 try:
+    service_account_info = json.loads(st.secrets["google_service_account"]["json"])
+    credentials = ee.ServiceAccountCredentials.from_json_keyfile_dict(service_account_info)
     ee.Initialize(credentials)
 except Exception as e:
     st.error(f"Erro ao inicializar Earth Engine: {e}")
     st.stop()
+
 
 
 
