@@ -19,8 +19,8 @@ try:
         service_account_info["client_email"],
         key_file="credentials.json"
     )
-    ee.Initialize(credentials)
-
+    ee.Initialize(credentials)  ## Esse try é uma gambiarra para poder hospedar a aplicação no streamlit, caso queria testar ela localmente pode apagar as linhas 12  a 21 e acredito que deva funcionar
+ 
 except Exception as e:
     st.error(f"Erro ao inicializar Earth Engine: {e}")
     st.stop()
