@@ -61,13 +61,13 @@ if query:
 start_date = st.sidebar.date_input("Data Inicial", value=pd.to_datetime("2022-01-01"))
 end_date = st.sidebar.date_input("Data Final", value=pd.to_datetime("2022-01-31"))
 
-# Slider para filtro nuvens
+# Barra lateral para poder filtrar o indice de nuvens
 cloud_limit = st.sidebar.slider(
     "Máximo percentual de nuvens permitido (%)",
     min_value=0, max_value=100, value=30, step=5
 )
 
-# Slider para threshold mínimo do NDVI
+# Barra lateral para alterar threshold mínimo do NDVI
 ndvi_threshold = st.sidebar.slider(
     "Threshold mínimo para NDVI",
     min_value=0.0,
@@ -77,15 +77,14 @@ ndvi_threshold = st.sidebar.slider(
     help="Defina o valor mínimo de NDVI para filtrar áreas vegetadas"
 )
 
-zoom = 10  # Zoom para local selecionado
+zoom = 10  # Zoom que a imagem vai vir quando abrir o app
 
-# Criar mapa Folium sem camada base padrão (tiles=None)
 m = folium.Map(location=[lat, lon], zoom_start=zoom, tiles=None)
 
 # Região de interesse
 roi = ee.Geometry.Point([lon, lat]).buffer(1000000)
 
-# Coleção Sentinel-2 filtrada
+# Fonte das imagens
 collection = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED') \
     .filterDate(str(start_date), str(end_date)) \
     .filterBounds(roi) \
@@ -98,7 +97,6 @@ if count == 0:
 else:
     sentinel = collection.median().divide(10000).clip(roi)
 
-# Visualização RGB Sentinel-2
 rgb_vis_params = {
     'bands': ['B4', 'B3', 'B2'],
     'min': 0,
@@ -168,7 +166,7 @@ if st.session_state.drawings:
             bounds = ee_geom.bounds().getInfo()['coordinates'][0]
             m2 = folium.Map(location=[lat, lon], zoom_start=zoom, tiles=None)
 
-            # Adiciona a camada NDVI filtrada
+            # Adiciona a camada NDVI 
             folium.TileLayer(
                 tiles=ndvi_tiles_url,
                 attr='NDVI via Google Earth Engine',
@@ -198,13 +196,10 @@ if st.session_state.drawings:
             # Exibe o mapa com NDVI filtrado
             st_folium(m2, height=600, width=1000, key="ndvi_map")
 
-            # Calcula a área total em metros quadrados
             area = ee_geom.area()
 
-            # Cria uma imagem binária onde 1 = vegetação (NDVI >= threshold)
             vegetation_mask = ndvi.gte(ndvi_threshold)
 
-            # Conta o total de pixels válidos (não nulos) na imagem NDVI
             total_pixels = ndvi.reduceRegion(
                 reducer=ee.Reducer.count(),
                 geometry=ee_geom,
@@ -212,7 +207,7 @@ if st.session_state.drawings:
                 maxPixels=1e9
             ).getInfo().get('NDVI', 1)
 
-            # Conta os pixels que são vegetação (NDVI >= threshold)
+            # Conta os pixels que são vegetação 
             vegetation_pixels = vegetation_mask.reduceRegion(
                 reducer=ee.Reducer.sum(),
                 geometry=ee_geom,
@@ -237,7 +232,6 @@ if st.session_state.drawings:
                 maxPixels=1e9
             ).getInfo()
 
-            # Exibe as estatísticas
             st.write("### Análise de Vegetação")
             st.metric("Porcentagem de Vegetação", f"{vegetation_percentage:.2f}%")
 
